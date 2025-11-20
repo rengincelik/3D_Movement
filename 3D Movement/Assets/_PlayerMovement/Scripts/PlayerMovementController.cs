@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+
 namespace Movement.Assets._PlayerMovement.Scripts
 {
     [RequireComponent(typeof(Rigidbody))]
@@ -10,133 +11,169 @@ namespace Movement.Assets._PlayerMovement.Scripts
     {
         public Rigidbody rb;
         public List<InputForceBridge> inputMovementBridges;
+        public bool EditBridge = false;
 
-        // public PlayerStateMachine stateMachine;
-        private List<InputForceBridge> holdBridges = new();
-        private List<InputForceBridge> triggerBridges = new();
-        private HashSet<InputForceBridge> activeHoldBridges = new();
+        private readonly List<InputForceBridge> holdBridges = new();
+        private readonly List<InputForceBridge> triggerBridges = new();
+        private readonly HashSet<InputForceBridge> activeHoldBridges = new();
 
-        public event Action<string> OnCollided;
+        private readonly Dictionary<InputForceBridge, Action<InputAction.CallbackContext>> performedCache = new();
+        private readonly Dictionary<InputForceBridge, Action<InputAction.CallbackContext>> startedCache = new();
+        private readonly Dictionary<InputForceBridge, Action<InputAction.CallbackContext>> canceledCache = new();
 
         private void Awake()
         {
-            if (rb == null) rb = GetComponent<Rigidbody>();
+            rb = rb == null ? GetComponent<Rigidbody>() : rb;
+            BuildBridges();
+        }
+
+        private void FixedUpdate()
+        {
+            if (EditBridge)
+            {
+                RebuildBridges();
+                EditBridge = false;
+            }
+
+            foreach (var bridge in activeHoldBridges)
+                ApplyForce(bridge);
+        }
+    private void ApplyForce(InputForceBridge bridge)
+    {
+        var force = bridge.forceConfig;
+        switch (force.movementConfig.movementCategory)
+        {
+            case MovementCategory.Linear:
+                ApplyLinearForce(bridge);
+                break;
+            case MovementCategory.Rotation:
+                ApplyRotationForce(bridge);
+                break;
+        }
+    }
+
+    private void ApplyLinearForce(InputForceBridge bridge)
+    {
+        var force = bridge.forceConfig;
+        Vector3 direction = bridge.GetDirection();
+
+        switch (force.movementConfig.LinearMovementType)
+        {
+            case LinearMovementType.Velocity:
+            case LinearMovementType.VelocityChange:
+                rb.linearVelocity = direction;
+                break;
+            case LinearMovementType.AddForce:
+                rb.AddForce(direction, force.ForceMode);
+                break;
+            case LinearMovementType.AddRelativeForce:
+                rb.AddRelativeForce(direction, force.ForceMode);
+                break;
+            case LinearMovementType.MovePosition:
+                rb.MovePosition(rb.position + direction * Time.fixedDeltaTime);
+                break;
+            case LinearMovementType.Transform:
+                transform.position += direction * Time.deltaTime;
+                break;
+        }
+    }
+
+    private void ApplyRotationForce(InputForceBridge bridge)
+    {
+        var force = bridge.forceConfig;
+        Vector3 direction = bridge.GetDirection();
+
+        switch (force.movementConfig.RotationMovementType)
+        {
+            case RotationMovementType.AngularVelocity:
+                rb.angularVelocity = direction;
+                break;
+            case RotationMovementType.AddTorque:
+                rb.AddTorque(direction, force.ForceMode);
+                break;
+            case RotationMovementType.LookRotation:
+                if (direction != Vector3.zero)
+                    transform.rotation = Quaternion.LookRotation(direction);
+                break;
+        }
+    }
+
+
+        private void BuildBridges()
+        {
+            holdBridges.Clear();
+            triggerBridges.Clear();
+            activeHoldBridges.Clear();
+            performedCache.Clear();
+            startedCache.Clear();
+            canceledCache.Clear();
 
             foreach (var bridge in inputMovementBridges)
             {
                 if (!bridge.IsValid) continue;
 
-                InputActionReference action = bridge.playerInput.action;
-                action.action.Enable();
+                var action = bridge.playerInput.action.action;
+                action.Enable();
 
+                bool requiresHold = action.interactions != null &&
+                                    action.interactions.ToLower().Contains("hold");
 
-                bool requiresHold = action.action.interactions != null &&
-                                    action.action.interactions.ToLower().Contains("hold");
+                var performed = new Action<InputAction.CallbackContext>(_ => ApplyForce(bridge));
+                var started = new Action<InputAction.CallbackContext>(_ => activeHoldBridges.Add(bridge));
+                var canceled = new Action<InputAction.CallbackContext>(_ => activeHoldBridges.Remove(bridge));
+
+                performedCache[bridge] = performed;
+                startedCache[bridge] = started;
+                canceledCache[bridge] = canceled;
 
                 if (requiresHold)
                 {
                     holdBridges.Add(bridge);
-
-                    action.action.started += ctx => activeHoldBridges.Add(bridge);
-                    action.action.canceled += ctx => activeHoldBridges.Remove(bridge);
+                    action.started += started;
+                    action.canceled += canceled;
                 }
                 else
                 {
                     triggerBridges.Add(bridge);
-                    action.action.performed += ctx => ApplyForce(bridge);
+                    action.performed += performed;
                 }
-
             }
-
-            // stateMachine = new PlayerStateMachine(this);
-            // stateMachine.Enter();
         }
 
-        private void FixedUpdate()
+        private void RebuildBridges()
         {
-            // basılı tuşlar için sürekli kuvvet uygula
-            foreach (var bridge in activeHoldBridges)
-                ApplyForce(bridge);
-            // stateMachine.Update();
-        }
-
-        private void ApplyForce(InputForceBridge bridge)
-        {
-            Debug.Log("applyForce");
-            ForceConfig force = bridge.forceConfig;
-
-            switch (force.MovementType)
+            foreach (var bridge in inputMovementBridges)
             {
-                case MovementType.Velocity:
-                    rb.linearVelocity = force.ForceDirection;
-                    break;
+                if (!performedCache.ContainsKey(bridge)) continue;
 
-                case MovementType.AddForce:
-                    rb.AddForce(force.ForceDirection, force.ForceMode);
-                    break;
-
-                case MovementType.AddRelativeForce:
-                    rb.AddRelativeForce(force.ForceDirection, force.ForceMode);
-                    break;
-
-                case MovementType.MovePosition:
-                    rb.MovePosition(rb.position + force.ForceDirection * Time.fixedDeltaTime);
-                    break;
-
-                case MovementType.VelocityChange:
-                    rb.linearVelocity = force.ForceDirection; // mass ignore olarak kullan
-                    break;
-
-                case MovementType.Transform:
-                    transform.position += force.ForceDirection * Time.deltaTime;
-                    break;
-
-                case MovementType.AngularVelocity:
-                    rb.angularVelocity = force.ForceDirection;
-                    break;
-
-                case MovementType.AddTorque:
-                    rb.AddTorque(force.ForceDirection, force.ForceMode);
-                    break;
-
-                case MovementType.LookRotation:
-                    if (force.LookMouse)
-                    {
-                        Vector3 dir = (Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue()) - transform.position);
-                        dir.y = 0; // sadece yatay dönüş
-                        if (dir != Vector3.zero)
-                            transform.rotation = Quaternion.LookRotation(dir);
-                    }
-                    break;
+                var action = bridge.playerInput.action.action;
+                action.started -= startedCache[bridge];
+                action.canceled -= canceledCache[bridge];
+                action.performed -= performedCache[bridge];
             }
+
+            BuildBridges();
         }
-
-
 
         private void OnDisable()
         {
             foreach (var bridge in inputMovementBridges)
             {
-                var action = bridge.playerInput.action.action;
+                if (!performedCache.ContainsKey(bridge)) continue;
 
-                // 2. Eylemi devre dışı bırak
+                var action = bridge.playerInput.action.action;
+                action.started -= startedCache[bridge];
+                action.canceled -= canceledCache[bridge];
+                action.performed -= performedCache[bridge];
                 action.Disable();
             }
-
-            holdBridges.Clear();
-            triggerBridges.Clear();
-            activeHoldBridges.Clear();
         }
 
-
-        public void OnCollisionEnter(Collision other)
-        {
-            OnCollided?.Invoke(other.collider.name);
-            Debug.Log($"colliden {other.collider.name}");
-        }
 
 
     }
 
-
 }
+
+
+

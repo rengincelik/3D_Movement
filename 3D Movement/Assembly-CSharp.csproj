@@ -48,6 +48,7 @@
     <Analyzer Include="/home/nedogan/Unity/Hub/Editor/6000.1.14f1/Editor/Data/Tools/Unity.SourceGenerators/Unity.UIToolkit.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets/_PlayerMovement/Scripts/CameraFollow.cs" />
     <Compile Include="Assets/_ObjectMovement/Scripts/MovementController.cs" />
     <Compile Include="Assets/_PlayerMovement/Scripts/PlayerMovementController.cs" />
     <Compile Include="Assets/_ObjectMovement/Scripts/CustomMovementDataEditor.cs" />

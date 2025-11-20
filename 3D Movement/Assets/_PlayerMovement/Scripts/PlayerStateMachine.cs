@@ -42,13 +42,13 @@ namespace Movement.Assets._PlayerMovement.Scripts
 
             currentEnvironmentState = availableEnvironments[EnvironmentType.Land];
 
-            controller.OnCollided += HandleEnvironmentChanged;
+            // controller.OnCollided += HandleEnvironmentChanged;
             currentEnvironmentState.EnterEnvironment();
         }
 
         public void ExitStateMachine()
         {
-            controller.OnCollided -= HandleEnvironmentChanged;
+            // controller.OnCollided -= HandleEnvironmentChanged;
             currentEnvironmentState.ExitEnvironment();
         }
 
@@ -89,77 +89,6 @@ namespace Movement.Assets._PlayerMovement.Scripts
         public ActionState GetCurrentAction() => currentEnvironmentState?.GetCurrentAction();
     }
 
-    public class VehicleStateMachine
-    {
-        public Rigidbody rb;
-        public VehicleMovementController controller;
-        private EnvironmentState currentEnvironmentState;
-
-        // Events
-        public event Action<EnvironmentState> OnEnvironmentChanged;
-        public event Action<ActionState> OnActionChanged;
-
-        // Event fırlatma metodları (EnvironmentState'ten çağrılacak)
-        public void NotifyActionChanged(ActionState newAction)
-        {
-            OnActionChanged?.Invoke(newAction);
-        }
-
-        private readonly Dictionary<EnvironmentType, EnvironmentState> availableEnvironments;
-
-        public VehicleStateMachine(VehicleMovementController ctrl)
-        {
-            controller = ctrl;
-            rb = ctrl.rb;
-
-            currentEnvironmentState = availableEnvironments[EnvironmentType.Land];
-
-            controller.OnCollided += HandleEnvironmentChanged;
-            currentEnvironmentState.EnterEnvironment();
-        }
-
-        public void ExitStateMachine()
-        {
-            controller.OnCollided -= HandleEnvironmentChanged;
-            currentEnvironmentState.ExitEnvironment();
-        }
-
-        private void HandleEnvironmentChanged(string envString)
-        {
-            if (Enum.TryParse<EnvironmentType>(envString, true, out var env))
-            {
-                if (availableEnvironments.TryGetValue(env, out var nextEnv))
-                {
-                    ChangeEnvironment(nextEnv);
-                }
-            }
-            else
-            {
-                Debug.LogWarning($"Unknown environment: {envString}");
-            }
-        }
-
-        private void ChangeEnvironment(EnvironmentState newEnv)
-        {
-            if (currentEnvironmentState == newEnv) return;
-
-            currentEnvironmentState.ExitEnvironment();
-            currentEnvironmentState = newEnv;
-            currentEnvironmentState.EnterEnvironment();
-
-            OnEnvironmentChanged?.Invoke(currentEnvironmentState);
-            Debug.Log($"[StateMachine] Environment changed to: {newEnv.GetType().Name}");
-        }
-
-        public void Update()
-        {
-            currentEnvironmentState.Update();
-        }
-
-        // Query metodları (opsiyonel - dışarıdan state bilgisi almak için)
-        public EnvironmentState GetCurrentEnvironment() => currentEnvironmentState;
-        public ActionState GetCurrentAction() => currentEnvironmentState?.GetCurrentAction();
-    }
 
     public abstract class EnvironmentState
     {
@@ -211,43 +140,6 @@ namespace Movement.Assets._PlayerMovement.Scripts
         // Query metodu
         public ActionState GetCurrentAction() => currentActionState;
     }
-
-    public abstract class ActionState
-    {
-        protected EnvironmentState envState;
-        protected PlayerStateMachine machine;
-
-
-        protected ActionState(EnvironmentState env)
-        {
-            envState = env;
-            machine = env.machine;
-        }
-
-        public virtual void EnterAction() { Debug.Log($"{envState}"); }
-        public virtual void ExitAction() { }
-        public virtual void Update() { }
-    }
-
-    public abstract class VehicleState
-    {
-        protected EnvironmentState envState;
-        protected PlayerStateMachine machine;
-
-
-        protected VehicleState(EnvironmentState env)
-        {
-            envState = env;
-            machine = env.machine;
-        }
-
-        public virtual void EnterAction() { Debug.Log($"{envState}"); }
-        public virtual void ExitAction() { }
-        public virtual void Update() { }
-    }
-
-
-
     public class LandState : EnvironmentState
     {
         public LandState(PlayerStateMachine machine) : base(machine)
@@ -332,6 +224,24 @@ namespace Movement.Assets._PlayerMovement.Scripts
         }
     }
 
+    public abstract class ActionState
+    {
+        protected EnvironmentState envState;
+        protected PlayerStateMachine machine;
+
+
+        protected ActionState(EnvironmentState env)
+        {
+            envState = env;
+            machine = env.machine;
+        }
+
+        public virtual void EnterAction() { Debug.Log($"{envState}"); }
+        public virtual void ExitAction() { }
+        public virtual void Update() { }
+    }
+
+
     public class IdleState : ActionState
     {
         public IdleState(EnvironmentState env) : base(env) { }
@@ -351,6 +261,91 @@ namespace Movement.Assets._PlayerMovement.Scripts
     public class SwimState : ActionState
     {
         public SwimState(EnvironmentState env) : base(env) { }
+    }
+
+
+
+    public class VehicleStateMachine
+    {
+        public Rigidbody rb;
+        public VehicleMovementController controller;
+        private EnvironmentState currentEnvironmentState;
+
+        public event Action<EnvironmentState> OnEnvironmentChanged;
+        public event Action<ActionState> OnActionChanged;
+
+        public void NotifyActionChanged(ActionState newAction)
+        {
+            OnActionChanged?.Invoke(newAction);
+        }
+
+        private readonly Dictionary<EnvironmentType, EnvironmentState> availableEnvironments;
+
+        public VehicleStateMachine(VehicleMovementController ctrl)
+        {
+            controller = ctrl;
+
+
+            currentEnvironmentState = availableEnvironments[EnvironmentType.Land];
+
+            currentEnvironmentState.EnterEnvironment();
+        }
+
+        public void ExitStateMachine()
+        {
+            currentEnvironmentState.ExitEnvironment();
+        }
+
+        private void HandleEnvironmentChanged(string envString)
+        {
+            if (Enum.TryParse<EnvironmentType>(envString, true, out var env))
+            {
+                if (availableEnvironments.TryGetValue(env, out var nextEnv))
+                {
+                    ChangeEnvironment(nextEnv);
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"Unknown environment: {envString}");
+            }
+        }
+
+        private void ChangeEnvironment(EnvironmentState newEnv)
+        {
+            if (currentEnvironmentState == newEnv) return;
+
+            currentEnvironmentState.ExitEnvironment();
+            currentEnvironmentState = newEnv;
+            currentEnvironmentState.EnterEnvironment();
+
+            OnEnvironmentChanged?.Invoke(currentEnvironmentState);
+            Debug.Log($"[StateMachine] Environment changed to: {newEnv.GetType().Name}");
+        }
+
+        public void Update()
+        {
+            currentEnvironmentState.Update();
+        }
+
+        public EnvironmentState GetCurrentEnvironment() => currentEnvironmentState;
+        public ActionState GetCurrentAction() => currentEnvironmentState?.GetCurrentAction();
+    }
+    public abstract class VehicleState
+    {
+        protected EnvironmentState envState;
+        protected PlayerStateMachine machine;
+
+
+        protected VehicleState(EnvironmentState env)
+        {
+            envState = env;
+            machine = env.machine;
+        }
+
+        public virtual void EnterAction() { Debug.Log($"{envState}"); }
+        public virtual void ExitAction() { }
+        public virtual void Update() { }
     }
 
 	public class CarState : VehicleState
