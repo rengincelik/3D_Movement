@@ -1,13 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace Movement.Assets._PlayerMovement.Editor
+
+namespace Movement.Assets._PlayerMovement.Scripts.Editor
 {
-    // MovementConfigDrawer.cs
     using UnityEngine;
     using UnityEditor;
+	using Movement.Assets._PlayerMovement.Scripts;
 
     [CustomPropertyDrawer(typeof(MovementConfig))]
     public class MovementConfigDrawer : PropertyDrawer
@@ -16,22 +13,32 @@ namespace Movement.Assets._PlayerMovement.Editor
         {
             EditorGUI.BeginProperty(position, label, property);
 
+            var categoryProp = property.FindPropertyRelative("movementCategory");
+            var linearTypeProp = property.FindPropertyRelative("LinearMovementType");
+            var rotationTypeProp = property.FindPropertyRelative("RotationMovementType");
+
             float lineHeight = EditorGUIUtility.singleLineHeight;
-            float padding = 2f;
+            float spacing = EditorGUIUtility.standardVerticalSpacing;
+            Rect rect = new Rect(position.x, position.y, position.width, lineHeight);
 
-            Rect categoryRect = new Rect(position.x, position.y, position.width, lineHeight);
-            SerializedProperty categoryProp = property.FindPropertyRelative("movementCategory");
-            EditorGUI.PropertyField(categoryRect, categoryProp);
+            // Movement Category
+            EditorGUI.PropertyField(rect, categoryProp);
+            rect.y += lineHeight + spacing;
 
-            if ((MovementCategory)categoryProp.enumValueIndex == MovementCategory.Linear)
+            // Conditional display based on category
+            MovementCategory category = (MovementCategory)categoryProp.enumValueIndex;
+
+            if (category == MovementCategory.Linear)
             {
-                Rect linearRect = new Rect(position.x, position.y + lineHeight + padding, position.width, lineHeight);
-                EditorGUI.PropertyField(linearRect, property.FindPropertyRelative("linearMovementType"));
+                EditorGUI.indentLevel++;
+                EditorGUI.PropertyField(rect, linearTypeProp, new GUIContent("Linear Type"));
+                EditorGUI.indentLevel--;
             }
-            else
+            else if (category == MovementCategory.Rotation)
             {
-                Rect rotRect = new Rect(position.x, position.y + lineHeight + padding, position.width, lineHeight);
-                EditorGUI.PropertyField(rotRect, property.FindPropertyRelative("rotationMovementType"));
+                EditorGUI.indentLevel++;
+                EditorGUI.PropertyField(rect, rotationTypeProp, new GUIContent("Rotation Type"));
+                EditorGUI.indentLevel--;
             }
 
             EditorGUI.EndProperty();
@@ -39,12 +46,14 @@ namespace Movement.Assets._PlayerMovement.Editor
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            SerializedProperty categoryProp = property.FindPropertyRelative("movementCategory");
             float lineHeight = EditorGUIUtility.singleLineHeight;
-            float padding = 2f;
-
-            return (categoryProp.enumValueIndex == (int)MovementCategory.Linear ? 2 : 2) * lineHeight + padding;
+            float spacing = EditorGUIUtility.standardVerticalSpacing;
+            return 2 * (lineHeight + spacing); // Category + Type
         }
     }
 
+
+
 }
+
+

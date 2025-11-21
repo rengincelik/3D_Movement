@@ -49,6 +49,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets/TutorialInfo/Scripts/Editor/ReadmeEditor.cs" />
+    <Compile Include="Assets/_PlayerMovement/Editor/ForceConfigDrawer.cs" />
+    <Compile Include="Assets/_PlayerMovement/Editor/CameraConfigDrawer.cs" />
+    <Compile Include="Assets/_PlayerMovement/Editor/MovementConfigDrawer.cs" />
+    <Compile Include="Assets/_PlayerMovement/Editor/UserInputDrawer.cs" />
+    <Compile Include="Assets/_PlayerMovement/Editor/InputForceBridgeDrawer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

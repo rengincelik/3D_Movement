@@ -50,14 +50,17 @@
   <ItemGroup>
     <Compile Include="Assets/_PlayerMovement/Scripts/CameraFollow.cs" />
     <Compile Include="Assets/_ObjectMovement/Scripts/MovementController.cs" />
-    <Compile Include="Assets/_PlayerMovement/Scripts/PlayerMovementController.cs" />
     <Compile Include="Assets/_ObjectMovement/Scripts/CustomMovementDataEditor.cs" />
+    <Compile Include="Assets/_PlayerMovement/Scripts/VehicleStateMachine.cs" />
     <Compile Include="Assets/_PlayerMovement/Scripts/MovementExecuter.cs" />
-    <Compile Include="Assets/_PlayerMovement/Scripts/VehicleController.cs" />
     <Compile Include="Assets/_ObjectMovement/Scripts/DOTWeenMover.cs" />
+    <Compile Include="Assets/_PlayerMovement/Scripts/EnvironmentHandler.cs" />
     <Compile Include="Assets/TutorialInfo/Scripts/Readme.cs" />
+    <Compile Include="Assets/_PlayerMovement/Scripts/BaseStateMAchine.cs" />
     <Compile Include="Assets/_PlayerMovement/Scripts/PlayerStateMachine.cs" />
     <Compile Include="Assets/_ObjectMovement/Scripts/MovementDataSO.cs" />
+    <Compile Include="Assets/_PlayerMovement/Scripts/ActiveMovementControllerManager.cs" />
+    <Compile Include="Assets/_PlayerMovement/Scripts/MovementController.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets/vEditor 1/vFavorites 2 v2.0.10 (13 Feb 2025)/README.txt" />

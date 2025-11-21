@@ -442,6 +442,52 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &876115673
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 876115675}
+  - component: {fileID: 876115674}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &876115674
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 876115673}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e1c082d714db7c938b79fc2132991e1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerController: {fileID: 989028272}
+  currentController: {fileID: 0}
+--- !u!4 &876115675
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 876115673}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.12, y: 5.78284, z: 1.21378}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &989028265
 GameObject:
   m_ObjectHideFlags: 0
@@ -590,7 +636,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 989028265}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bd4fe039389a9ae6d9ce84878ed076cd, type: 3}
+  m_Script: {fileID: 11500000, guid: 814d6e54b4eca90cc94d6aca5a1931a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   rb: {fileID: 989028267}
@@ -600,12 +646,13 @@ MonoBehaviour:
     forceConfig:
       movementConfig:
         movementCategory: 0
-        LinearMovementType: 1
+        LinearMovementType: 0
         RotationMovementType: 0
       directionType: 0
       forceMagnatiute: 10
       ForceMode: 1
     cameraConfig:
+      useMainCamera: 1
       camera: {fileID: 330585545}
       cameraType: 0
   - playerInput:
@@ -613,25 +660,27 @@ MonoBehaviour:
     forceConfig:
       movementConfig:
         movementCategory: 0
-        LinearMovementType: 1
+        LinearMovementType: 0
         RotationMovementType: 0
       directionType: 3
       forceMagnatiute: 10
       ForceMode: 0
     cameraConfig:
+      useMainCamera: 1
       camera: {fileID: 330585545}
       cameraType: 0
   - playerInput:
       action: {fileID: 1781555164194001046, guid: 052faaac586de48259a63d0c4782560b, type: 3}
     forceConfig:
       movementConfig:
-        movementCategory: 1
-        LinearMovementType: 1
-        RotationMovementType: 1
-      directionType: 3
+        movementCategory: 0
+        LinearMovementType: 0
+        RotationMovementType: 0
+      directionType: 0
       forceMagnatiute: 10
-      ForceMode: 1
+      ForceMode: 0
     cameraConfig:
+      useMainCamera: 1
       camera: {fileID: 330585545}
       cameraType: 0
   EditBridge: 0
@@ -752,3 +801,4 @@ SceneRoots:
   - {fileID: 330585546}
   - {fileID: 989028271}
   - {fileID: 1558134458}
+  - {fileID: 876115675}

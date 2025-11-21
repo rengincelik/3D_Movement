@@ -7,9 +7,11 @@ using UnityEngine.InputSystem;
 namespace Movement.Assets._PlayerMovement.Scripts
 {
     [RequireComponent(typeof(Rigidbody))]
-    public class PlayerMovementController : MonoBehaviour
+    public class MovementController : MonoBehaviour
     {
         public Rigidbody rb;
+
+        private bool isActive = false;
         public List<InputForceBridge> inputMovementBridges;
         public bool EditBridge = false;
 
@@ -26,8 +28,9 @@ namespace Movement.Assets._PlayerMovement.Scripts
             rb = rb == null ? GetComponent<Rigidbody>() : rb;
             BuildBridges();
         }
-
-        private void FixedUpdate()
+        public void CustomUpdate() {}
+        public void SetActive(bool active) { isActive = active; }
+        public void CustomFixedUpdate()
         {
             if (EditBridge)
             {
@@ -38,65 +41,65 @@ namespace Movement.Assets._PlayerMovement.Scripts
             foreach (var bridge in activeHoldBridges)
                 ApplyForce(bridge);
         }
-    private void ApplyForce(InputForceBridge bridge)
-    {
-        var force = bridge.forceConfig;
-        switch (force.movementConfig.movementCategory)
+        private void ApplyForce(InputForceBridge bridge)
         {
-            case MovementCategory.Linear:
-                ApplyLinearForce(bridge);
-                break;
-            case MovementCategory.Rotation:
-                ApplyRotationForce(bridge);
-                break;
+            var force = bridge.forceConfig;
+            switch (force.movementConfig.movementCategory)
+            {
+                case MovementCategory.Linear:
+                    ApplyLinearForce(bridge);
+                    break;
+                case MovementCategory.Rotation:
+                    ApplyRotationForce(bridge);
+                    break;
+            }
         }
-    }
 
-    private void ApplyLinearForce(InputForceBridge bridge)
-    {
-        var force = bridge.forceConfig;
-        Vector3 direction = bridge.GetDirection();
-
-        switch (force.movementConfig.LinearMovementType)
+        private void ApplyLinearForce(InputForceBridge bridge)
         {
-            case LinearMovementType.Velocity:
-            case LinearMovementType.VelocityChange:
-                rb.linearVelocity = direction;
-                break;
-            case LinearMovementType.AddForce:
-                rb.AddForce(direction, force.ForceMode);
-                break;
-            case LinearMovementType.AddRelativeForce:
-                rb.AddRelativeForce(direction, force.ForceMode);
-                break;
-            case LinearMovementType.MovePosition:
-                rb.MovePosition(rb.position + direction * Time.fixedDeltaTime);
-                break;
-            case LinearMovementType.Transform:
-                transform.position += direction * Time.deltaTime;
-                break;
+            var force = bridge.forceConfig;
+            Vector3 direction = bridge.GetDirection();
+
+            switch (force.movementConfig.LinearMovementType)
+            {
+                case LinearMovementType.Velocity:
+                case LinearMovementType.VelocityChange:
+                    rb.linearVelocity = direction;
+                    break;
+                case LinearMovementType.AddForce:
+                    rb.AddForce(direction, force.ForceMode);
+                    break;
+                case LinearMovementType.AddRelativeForce:
+                    rb.AddRelativeForce(direction, force.ForceMode);
+                    break;
+                case LinearMovementType.MovePosition:
+                    rb.MovePosition(rb.position + direction * Time.fixedDeltaTime);
+                    break;
+                case LinearMovementType.Transform:
+                    transform.position += direction * Time.deltaTime;
+                    break;
+            }
         }
-    }
 
-    private void ApplyRotationForce(InputForceBridge bridge)
-    {
-        var force = bridge.forceConfig;
-        Vector3 direction = bridge.GetDirection();
-
-        switch (force.movementConfig.RotationMovementType)
+        private void ApplyRotationForce(InputForceBridge bridge)
         {
-            case RotationMovementType.AngularVelocity:
-                rb.angularVelocity = direction;
-                break;
-            case RotationMovementType.AddTorque:
-                rb.AddTorque(direction, force.ForceMode);
-                break;
-            case RotationMovementType.LookRotation:
-                if (direction != Vector3.zero)
-                    transform.rotation = Quaternion.LookRotation(direction);
-                break;
+            var force = bridge.forceConfig;
+            Vector3 direction = bridge.GetDirection();
+
+            switch (force.movementConfig.RotationMovementType)
+            {
+                case RotationMovementType.AngularVelocity:
+                    rb.angularVelocity = direction;
+                    break;
+                case RotationMovementType.AddTorque:
+                    rb.AddTorque(direction, force.ForceMode);
+                    break;
+                case RotationMovementType.LookRotation:
+                    if (direction != Vector3.zero)
+                        transform.rotation = Quaternion.LookRotation(direction);
+                    break;
+            }
         }
-    }
 
 
         private void BuildBridges()
@@ -170,6 +173,42 @@ namespace Movement.Assets._PlayerMovement.Scripts
         }
 
 
+
+
+        public void EnableControl()
+        {
+            // Input eventlerini yeniden bağla
+            BuildBridges();
+
+            // Fizik etkileşimlerini aç
+            if (rb != null)
+                rb.isKinematic = false;
+
+            enabled = true;
+        }
+
+        public void DisableControl()
+        {
+            // Eventleri temizle
+            foreach (var bridge in inputMovementBridges)
+            {
+                if (!performedCache.ContainsKey(bridge)) continue;
+
+                var action = bridge.playerInput.action.action;
+                action.started -= startedCache[bridge];
+                action.canceled -= canceledCache[bridge];
+                action.performed -= performedCache[bridge];
+                action.Disable();
+            }
+
+            activeHoldBridges.Clear();
+
+            // Fizik etkileşimini kapatmak istersen (opsiyonel)
+            if (rb != null)
+                rb.isKinematic = true;
+
+            enabled = false;
+        }
 
     }
 

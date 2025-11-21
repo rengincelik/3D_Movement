@@ -34,11 +34,12 @@ namespace Movement.Assets._PlayerMovement.Scripts
     [Serializable]
     public class CameraConfig
     {
+        public bool useMainCamera = true;
         public Camera camera;
         public CameraType cameraType;
     }
     [Serializable]
-    public struct MovementConfig
+    public class MovementConfig
 	{
 		public MovementCategory movementCategory;
         public LinearMovementType LinearMovementType;
