@@ -3,10 +3,6 @@ using UnityEngine.InputSystem;
 
 namespace Movement.Assets._PlayerMovement.Scripts
 {
-    /// <summary>
-    /// Singleton pattern ile ActiveMovementControllerManager
-    /// </summary>
-
     public class ActiveMovementControllerManager : MonoBehaviour
     {
         public static ActiveMovementControllerManager Instance { get; private set; }
