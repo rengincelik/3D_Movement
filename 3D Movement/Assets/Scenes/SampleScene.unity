@@ -393,6 +393,59 @@ MonoBehaviour:
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 1
+--- !u!1 &517928790
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 517928792}
+  - component: {fileID: 517928791}
+  m_Layer: 0
+  m_Name: collideZone
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!65 &517928791
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 517928790}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 4, z: 1}
+  m_Center: {x: 0, y: 2, z: 0}
+--- !u!4 &517928792
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 517928790}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1.2, y: 1.2, z: 1.2}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 631484856}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &631484850
 GameObject:
   m_ObjectHideFlags: 0
@@ -410,7 +463,7 @@ GameObject:
   - component: {fileID: 631484857}
   m_Layer: 0
   m_Name: Cube.1
-  m_TagString: Untagged
+  m_TagString: Vehicle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -437,7 +490,21 @@ MonoBehaviour:
         LinearMovementType: 1
         RotationMovementType: 0
       directionType: 0
-      forceMagnatiute: 30
+      forceMagnatiute: 3
+      ForceMode: 1
+    cameraConfig:
+      useMainCamera: 1
+      camera: {fileID: 330585545}
+      cameraType: 0
+  - playerInput:
+      action: {fileID: -1680190386980627800, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+    forceConfig:
+      movementConfig:
+        movementCategory: 0
+        LinearMovementType: 1
+        RotationMovementType: 0
+      directionType: 3
+      forceMagnatiute: 50
       ForceMode: 0
     cameraConfig:
       useMainCamera: 1
@@ -486,7 +553,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -554,12 +621,13 @@ Transform:
   m_GameObject: {fileID: 631484850}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.5481, y: -0.28, z: 4.0429}
+  m_LocalPosition: {x: 0.5481, y: -0.2, z: 4.0429}
   m_LocalScale: {x: 4.3362, y: 1, z: 6.6583}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1422477371}
   - {fileID: 1043695555}
+  - {fileID: 517928792}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &631484857
@@ -575,10 +643,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   vehicleController: {fileID: 631484851}
-  interactionRange: 3
-  exitOffset: {x: 2, y: 0, z: 0}
   mountPoint: {fileID: 1422477371}
   exitPoint: {fileID: 1043695555}
+  interactionZone: {fileID: 517928791}
+  playerInRange: 0
+  playerController: {fileID: 0}
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -657,8 +726,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e1c082d714db7c938b79fc2132991e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Player: {fileID: 989028265}
   playerController: {fileID: 989028272}
-  currentController: {fileID: 631484851}
+  currentController: {fileID: 0}
   interactInput: {fileID: 1781555164194001046, guid: 052faaac586de48259a63d0c4782560b, type: 3}
 --- !u!4 &876115675
 Transform:
@@ -721,7 +791,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 112
   m_CollisionDetection: 0
 --- !u!136 &989028268
 CapsuleCollider:
@@ -913,7 +983,7 @@ Transform:
   m_GameObject: {fileID: 1422477370}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 2.05, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

@@ -17,6 +17,7 @@ namespace Movement.Assets._PlayerMovement.Scripts
         public InputActionReference interactInput;
 
         private VehicleInteraction currentVehicle;
+        private bool canInteract = false;
 
         private void Awake()
         {
@@ -35,31 +36,56 @@ namespace Movement.Assets._PlayerMovement.Scripts
                 Debug.Log($"Input enabled in Start: {interactInput.action.enabled}"); // ← EKLE
             }
         }
-
         private void Update()
+        {
+            currentController?.CustomUpdate();
+
+            // SADECE interaction mümkünse kontrol et
+            if (canInteract)
+            {
+                CheckInteractionInput();
+            }
+        }
+        private void CheckInteractionInput()
         {
             var keyboard = Keyboard.current;
             if (keyboard != null && keyboard.eKey.wasPressedThisFrame)
             {
-                Debug.Log("E tuşuna basıldı!");
-
-                currentController?.CustomUpdate();
-                CheckInteraction();
+                // Vehicle yanında mı?
+                if (currentVehicle != null && currentVehicle.playerInRange && !IsVehicleActive())
+                {
+                    MountVehicle(currentVehicle);
+                }
+                // Vehicle'da mı?
+                else if (IsVehicleActive())
+                {
+                    Debug.Log("dismount");
+                    DismountVehicle();
+                }
             }
-
-            if (keyboard != null && keyboard.eKey.wasReleasedThisFrame)
-            {
-                Debug.Log("E tuşu bırakıldı!");
-            }
-
-            if (interactInput != null && interactInput.action.triggered)
-            {
-                Debug.Log("E tuşuna basıldı! input system detected");
-                // Mount / Dismount işlemi
-            }
-
-
         }
+        public void RegisterVehicle(VehicleInteraction vehicle)
+        {
+            currentVehicle = vehicle;
+            canInteract = true; // ← Interaction aktif
+            Debug.Log("[ActiveManager] Vehicle registered - E to enter enabled");
+        }
+
+        public void UnregisterVehicle(VehicleInteraction vehicle)
+        {
+            if (currentVehicle == vehicle)
+            {
+                currentVehicle = null;
+
+                // Eğer vehicle'da değilse interaction kapat
+                if (!IsVehicleActive())
+                {
+                    canInteract = false; // ← Interaction pasif
+                    Debug.Log("[ActiveManager] Vehicle unregistered - E disabled");
+                }
+            }
+        }
+
 
         private void FixedUpdate()
         {
@@ -67,35 +93,8 @@ namespace Movement.Assets._PlayerMovement.Scripts
         }
 
 
-        private void CheckInteraction()
-        {
-            var keyboard = Keyboard.current;
-            if (keyboard != null && keyboard.eKey.wasPressedThisFrame)
-            {
-                Debug.Log("E tuşuna basıldı!");
 
 
-            if (currentVehicle != null && currentVehicle.playerInRange && !IsVehicleActive())
-            {
-                MountVehicle(currentVehicle);
-            }
-            else if (IsVehicleActive())
-            {
-                DismountVehicle();
-            }
-            }
-        }
-
-        public void RegisterVehicle(VehicleInteraction vehicle)
-        {
-            currentVehicle = vehicle;
-        }
-
-        public void UnregisterVehicle(VehicleInteraction vehicle)
-        {
-            if (currentVehicle == vehicle)
-                currentVehicle = null;
-        }
 
         private bool IsVehicleActive() => currentController != null && currentController != playerController;
 
@@ -132,7 +131,8 @@ namespace Movement.Assets._PlayerMovement.Scripts
             }
 
             SetActiveController(vehicle.vehicleController);
-            Debug.Log("[ActiveManager] Mounted vehicle");
+            canInteract = true; // ← Vehicle'dayken de E aktif (inme için)
+            Debug.Log("[ActiveManager] Mounted vehicle - E to exit enabled");
         }
 
         public void DismountVehicle()
@@ -167,7 +167,8 @@ namespace Movement.Assets._PlayerMovement.Scripts
             }
 
             SetActiveController(playerController);
-            Debug.Log("[ActiveManager] Dismounted vehicle");
+            canInteract = false; // ← İndikten sonra pasif
+            Debug.Log("[ActiveManager] Dismounted vehicle - E disabled");
         }
 
     }
@@ -175,53 +176,3 @@ namespace Movement.Assets._PlayerMovement.Scripts
 
 }
 
-// using UnityEngine;
-
-// namespace Movement.Assets._PlayerMovement.Scripts
-// {
-//     public class ActiveMovementControllerManager: MonoBehaviour
-//     {
-//         public MovementController playerController;
-//         public MovementController currentController;
-
-//         private void Awake()
-//         {
-//             // Başlangıçta player aktif
-//             SetActiveController(playerController);
-//         }
-
-//         public void SetActiveController(MovementController controller)
-//         {
-//             if (currentController != null)
-//                 currentController.SetActive(false); // pasif yap
-
-//             currentController = controller;
-
-//             if (currentController != null)
-//                 currentController.SetActive(true);  // aktif yap
-//         }
-
-//         private void Update()
-//         {
-//             currentController?.CustomUpdate();   // MovementController içinde Update yerine CustomUpdate
-//         }
-
-//         private void FixedUpdate()
-//         {
-//             currentController?.CustomFixedUpdate(); // MovementController içinde FixedUpdate yerine
-//         }
-
-//         // Araç binildiğinde çağrılır
-//         public void MountVehicle(MovementController vehicleController)
-//         {
-//             SetActiveController(vehicleController);
-//         }
-
-//         // Araçtan inildiğinde çağrılır
-//         public void DismountVehicle()
-//         {
-//             SetActiveController(playerController);
-//         }
-//     }
-
-// }
