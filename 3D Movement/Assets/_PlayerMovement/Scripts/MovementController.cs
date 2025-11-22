@@ -29,9 +29,15 @@ namespace Movement.Assets._PlayerMovement.Scripts
             BuildBridges();
         }
         public void CustomUpdate() {}
-        public void SetActive(bool active) { isActive = active; }
+        public void SetActive(bool active)
+        {
+            isActive = active;
+            if (active) EnableControl();
+            else DisableControl();
+        }
         public void CustomFixedUpdate()
         {
+            if (!isActive) return;
             if (EditBridge)
             {
                 RebuildBridges();
@@ -41,6 +47,7 @@ namespace Movement.Assets._PlayerMovement.Scripts
             foreach (var bridge in activeHoldBridges)
                 ApplyForce(bridge);
         }
+
         private void ApplyForce(InputForceBridge bridge)
         {
             var force = bridge.forceConfig;

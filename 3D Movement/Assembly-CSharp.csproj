@@ -42,7 +42,7 @@
     <UnityVersion>6000.1.14f1</UnityVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Analyzer Include="/home/nedogan/.vscode/extensions/visualstudiotoolsforunity.vstuc-1.1.3/Analyzers/Microsoft.Unity.Analyzers.dll" />
+    <Analyzer Include="/home/nedogan/.vscode/extensions/visualstudiotoolsforunity.vstuc-1.2.0/Analyzers/Microsoft.Unity.Analyzers.dll" />
     <Analyzer Include="/home/nedogan/Unity/Hub/Editor/6000.1.14f1/Editor/Data/Tools/Unity.SourceGenerators/Unity.SourceGenerators.dll" />
     <Analyzer Include="/home/nedogan/Unity/Hub/Editor/6000.1.14f1/Editor/Data/Tools/Unity.SourceGenerators/Unity.Properties.SourceGenerator.dll" />
     <Analyzer Include="/home/nedogan/Unity/Hub/Editor/6000.1.14f1/Editor/Data/Tools/Unity.SourceGenerators/Unity.UIToolkit.SourceGenerator.dll" />
@@ -51,6 +51,7 @@
     <Compile Include="Assets/_PlayerMovement/Scripts/CameraFollow.cs" />
     <Compile Include="Assets/_ObjectMovement/Scripts/MovementController.cs" />
     <Compile Include="Assets/_ObjectMovement/Scripts/CustomMovementDataEditor.cs" />
+    <Compile Include="Assets/_PlayerMovement/Scripts/VehicleInteraction.cs" />
     <Compile Include="Assets/_PlayerMovement/Scripts/VehicleStateMachine.cs" />
     <Compile Include="Assets/_PlayerMovement/Scripts/MovementExecuter.cs" />
     <Compile Include="Assets/_ObjectMovement/Scripts/DOTWeenMover.cs" />
